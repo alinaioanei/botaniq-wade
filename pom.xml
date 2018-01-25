@@ -63,7 +63,56 @@
 			<artifactId>spring-boot-starter-hateoas</artifactId>
 		</dependency>
 
-	</dependencies>
+        <dependency>
+            <groupId>com.complexible.stardog</groupId>
+            <artifactId>stardog-spring</artifactId>
+            <version>4.2.1</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.complexible.stardog</groupId>
+                    <artifactId>client-http</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.complexible.stardog</groupId>
+                    <artifactId>client-snarl</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.complexible.stardog</groupId>
+            <artifactId>client-http</artifactId>
+            <version>4.2.4</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.complexible.stardog</groupId>
+            <artifactId>client-snarl</artifactId>
+            <version>4.2.4</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.complexible.stardog</groupId>
+            <artifactId>server</artifactId>
+            <version>4.2.4</version>
+            <type>pom</type>
+        </dependency>
+
+        <dependency>
+            <groupId>com.complexible.stardog.sesame</groupId>
+            <artifactId>stardog-sesame-core</artifactId>
+            <version>4.2.4</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>com.complexible.stardog.jena</groupId>
+            <artifactId>stardog-jena</artifactId>
+            <version>4.2.4</version>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -74,5 +123,18 @@
 		</plugins>
 	</build>
 
+	<repositories>
+
+		<repository>
+			<id>spring-releases</id>
+			<url>https://repo.spring.io/libs-release</url>
+		</repository>
+
+		<repository>
+			<id>stardog-public</id>
+			<url>http://maven.stardog.com</url>
+		</repository>
+
+	</repositories>
 
 </project>
