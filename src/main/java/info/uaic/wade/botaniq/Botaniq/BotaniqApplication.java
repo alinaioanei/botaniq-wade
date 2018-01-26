@@ -18,8 +18,7 @@ public class BotaniqApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(SparqlUtil sparqlUtil){
 		return (args) ->{
-			sparqlUtil.queryDbpedia();
-			sparqlUtil.print();
+
 		};
 	}
 }

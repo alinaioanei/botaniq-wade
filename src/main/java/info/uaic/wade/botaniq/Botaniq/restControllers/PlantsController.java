@@ -2,7 +2,10 @@ package info.uaic.wade.botaniq.Botaniq.restControllers;
 
 import info.uaic.wade.botaniq.Botaniq.model.Plants;
 import info.uaic.wade.botaniq.Botaniq.model.User;
+import info.uaic.wade.botaniq.Botaniq.services.DbpediaWrapper;
+import info.uaic.wade.botaniq.Botaniq.services.SparqlUtil;
 import io.swagger.annotations.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.Link;
 import org.springframework.hateoas.mvc.ControllerLinkBuilder;
 import org.springframework.http.HttpEntity;
@@ -22,6 +25,9 @@ import java.util.List;
 @Api(value = "plantsController", description = "CRUD operations over plants entity from botaniq application")
 public class PlantsController {
 
+    @Autowired
+    private SparqlUtil sparqlUtil;
+
     private static List<Plants> plants;
 
     static {
@@ -34,6 +40,11 @@ public class PlantsController {
         plants.add(p1);
     }
 
+
+    @GetMapping("/fetchDbpediaData")
+    public List<DbpediaWrapper> fetchDbpediaData(){
+        return sparqlUtil.fetchDbpediaData();
+    }
 
     @ApiOperation( value = "getPlantsList" , nickname = "getPlantsList")
     @RequestMapping( method = RequestMethod.GET , path = "/plants" , produces = "application/json")
