@@ -18,7 +18,9 @@ public class BotaniqApplication {
 	@Bean
 	public CommandLineRunner commandLineRunner(SparqlUtil sparqlUtil){
 		return (args) ->{
-           sparqlUtil.stardogQuery();
+			String post = sparqlUtil.postRequestToStardog("select * where {?a ?b ?c}");
+			System.out.println("---------");
+			System.out.println(post);
 		};
 	}
 }

@@ -24,4 +24,5 @@ public class DbpediaWrapper {
     private String link;
     private String image;
     private String name;
+    private String plant;
 }

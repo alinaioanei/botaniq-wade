@@ -46,6 +46,11 @@ public class PlantsController {
         return sparqlUtil.fetchDbpediaData();
     }
 
+    @GetMapping("/findOneFromDbpedia/{plant}")
+    public DbpediaWrapper findOneFromDbpedia(@PathVariable("plant") String plant){
+        return sparqlUtil.findOneFromDbpedia(plant);
+    }
+
     @ApiOperation( value = "getPlantsList" , nickname = "getPlantsList")
     @RequestMapping( method = RequestMethod.GET , path = "/plants" , produces = "application/json")
     @ApiImplicitParams({
