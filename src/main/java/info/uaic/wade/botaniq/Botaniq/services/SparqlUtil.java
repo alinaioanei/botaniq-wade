@@ -86,9 +86,11 @@ public class SparqlUtil {
                 String family = familySplitted[familySplitted.length - 1];
                 String[] orderSplitted = qs.get("class").toString().split("/");
                 String order = orderSplitted[orderSplitted.length - 1];
+                String[] linkSplitted = qs.get("link").toString().split("/");
+                String name = linkSplitted[linkSplitted.length - 1];
                 DbpediaWrapper dw = new DbpediaWrapper(id, qs.get("info").toString(), classs,
                         division, family, order, comment,
-                        qs.get("link").toString(), qs.get("image").toString());
+                        qs.get("link").toString(), qs.get("image").toString(), name);
                 map.put(id, dw);
             }
         }
@@ -120,12 +122,10 @@ public class SparqlUtil {
     }
 
     public void stardogQuery(){
-        String query = stardogPrefix + "query=select * where { ?a ?b ?c}";
-        String url = stardogURL + query;
+        String query = "?query=select * where { ?a ?b ?c}";
+        String url = stardogURL;
 
-        String testUrl =  "http://localhost:5820/botaniq/query";
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.TEXT_PLAIN);
         headers.setAccept(Arrays.asList(MediaType.valueOf("application/sparql-results+json")));
 
         String authentification = "admin:admin";
@@ -135,7 +135,7 @@ public class SparqlUtil {
         headers.add("Authorization","Basic " + encodedAuth);
         HttpEntity<String> entity = new HttpEntity<>("parameters", headers);
         RestTemplate restTemplate = new RestTemplate();
-        ResponseEntity<String> response = restTemplate.exchange(testUrl, HttpMethod.GET, entity, String.class, vars);
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class, vars);
         System.out.println(response.getBody());
     }
 
