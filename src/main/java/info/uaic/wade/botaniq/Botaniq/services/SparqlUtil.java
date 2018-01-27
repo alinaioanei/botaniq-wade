@@ -2,6 +2,7 @@ package info.uaic.wade.botaniq.Botaniq.services;
 
 import com.complexible.stardog.ext.spring.RowMapper;
 import com.complexible.stardog.ext.spring.SnarlTemplate;
+import info.uaic.wade.botaniq.Botaniq.model.CommentForm;
 import org.apache.jena.query.*;
 import org.openrdf.query.BindingSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,30 @@ public class SparqlUtil {
 
     private String stardogURL = "http://localhost:5820/botaniq/query";
 
+
+    public void addComment(CommentForm commentForm) {
+        String link = commentForm.getPlant();
+        link = link.substring(1, link.length());
+        link = link.substring(0, link.length() - 1);
+        snarlTemplate.add(link, "botaniq:comment", commentForm.getComment());
+    }
+
+    public void addRelation(CommentForm commentForm) {
+        String link = commentForm.getPlant();
+        link = link.substring(1, link.length());
+        link = link.substring(0, link.length() - 1);
+        String relationWith = commentForm.getComment();
+        relationWith = "http://http://dbpedia.org/resource/" + relationWith;
+        snarlTemplate.add(link, "botaniq:hasRelationWith", relationWith);
+    }
+
+    public void addImage(CommentForm commentForm) {
+        String link = commentForm.getPlant();
+        link = link.substring(1, link.length());
+        link = link.substring(0, link.length() - 1);
+        snarlTemplate.add(link, "dbo:thumbnail", commentForm.getComment());
+    }
+
     public void loadDataFromDbpedia(){
         ParameterizedSparqlString ps = new ParameterizedSparqlString(findAlldbpediaQuery);
         QueryExecution qe = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", ps.asQuery());
@@ -108,6 +133,7 @@ public class SparqlUtil {
             snarlTemplate.add(entry.getValue().getPlant(), "dbo:class", entry.getValue().getClasss());
             snarlTemplate.add(entry.getValue().getPlant(), "dbo:thumbnail", entry.getValue().getImage());
             snarlTemplate.add(entry.getValue().getPlant(), "rdfs:comment", entry.getValue().getComment());
+            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:label", entry.getValue().getName());
         }
         qe.close();
 
@@ -212,6 +238,11 @@ public class SparqlUtil {
         });
     }
 
+    public List<String> fetchPlantsName(String plant) {
+        List<String> names = new LinkedList<>();
+        return names;
+    }
+
 
 
     public String getRequestToStardog(String query, String responseType){
@@ -303,5 +334,7 @@ public class SparqlUtil {
         }
         return response;
     }
+
+
 
 }

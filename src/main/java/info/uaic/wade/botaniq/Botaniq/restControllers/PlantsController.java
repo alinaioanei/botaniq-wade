@@ -1,5 +1,6 @@
 package info.uaic.wade.botaniq.Botaniq.restControllers;
 
+import info.uaic.wade.botaniq.Botaniq.model.CommentForm;
 import info.uaic.wade.botaniq.Botaniq.model.Plants;
 import info.uaic.wade.botaniq.Botaniq.model.Query;
 import info.uaic.wade.botaniq.Botaniq.model.User;
@@ -68,6 +69,29 @@ public class PlantsController {
     @PostMapping("/sparql")
     public String sparqlPostEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){
         return sparqlUtil.postRequestToStardog(query, responseType);
+    }
+
+    @GetMapping("/fetchPlantNames")
+    public List<String> fetchPlantsName(@RequestParam("plant") String plant){
+        return sparqlUtil.fetchPlantsName(plant);
+    }
+
+    @PostMapping("/addComments")
+    public String addComment(@RequestBody CommentForm commentForm){
+       sparqlUtil.addComment(commentForm);
+       return "comment added";
+    }
+
+    @PostMapping("/addRelation")
+    public String addRelation(@RequestBody CommentForm commentForm){
+        sparqlUtil.addRelation(commentForm);
+        return "relation added";
+    }
+
+    @PostMapping("/addImage")
+    public String addImage(@RequestBody CommentForm commentForm){
+        sparqlUtil.addImage(commentForm);
+        return "comment added";
     }
 
     @ApiOperation( value = "getPlantsList" , nickname = "getPlantsList")
