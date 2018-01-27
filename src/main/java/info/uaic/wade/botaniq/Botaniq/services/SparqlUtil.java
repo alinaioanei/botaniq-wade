@@ -83,6 +83,36 @@ public class SparqlUtil {
 
     private String stardogURL = "http://localhost:5820/botaniq/query";
 
+    public void loadDataFromDbpedia(){
+        ParameterizedSparqlString ps = new ParameterizedSparqlString(findAlldbpediaQuery);
+        QueryExecution qe = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", ps.asQuery());
+        Map<Integer, DbpediaWrapper> map = new HashMap<>();
+        ResultSet rs = qe.execSelect();
+        while (rs.hasNext()) {
+            QuerySolution qs = rs.next();
+            int id = qs.get("id").asLiteral().getInt();
+            if (!map.containsKey(id)) {
+                String[] linkSplitted = qs.get("link").toString().split("/");
+                String name = linkSplitted[linkSplitted.length - 1];
+                DbpediaWrapper dw = new DbpediaWrapper(id, qs.get("info").toString(), qs.get("class").toString(),
+                        qs.get("division").toString(), qs.get("family").toString(), qs.get("order").toString(), qs.get("comment").toString(),
+                        qs.get("link").toString(), qs.get("image").toString(), name, qs.get("plant").toString());
+                map.put(id, dw);
+            }
+        }
+        for (Map.Entry<Integer, DbpediaWrapper> entry: map.entrySet()){
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:abstract", entry.getValue().getInfo());
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:wikiPageID", entry.getValue().getLink());
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:family", entry.getValue().getFamily());
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:order", entry.getValue().getOrder());
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:class", entry.getValue().getClasss());
+            snarlTemplate.add(entry.getValue().getPlant(), "dbo:thumbnail", entry.getValue().getImage());
+            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:comment", entry.getValue().getComment());
+        }
+        qe.close();
+
+    }
+
     public void queryDbpedia(){
         ParameterizedSparqlString ps = new ParameterizedSparqlString(findAlldbpediaQuery);
         QueryExecution qe = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", ps.asQuery());
@@ -108,11 +138,11 @@ public class SparqlUtil {
             comment = comment.substring(0, comment.length() - 3);
             String[] classSplitted = qs.get("class").toString().split("/");
             String classs = classSplitted[classSplitted.length - 1];
-            String[] divisionplitted = qs.get("class").toString().split("/");
+            String[] divisionplitted = qs.get("division").toString().split("/");
             String division = divisionplitted[divisionplitted.length - 1];
-            String[] familySplitted = qs.get("class").toString().split("/");
+            String[] familySplitted = qs.get("family").toString().split("/");
             String family = familySplitted[familySplitted.length - 1];
-            String[] orderSplitted = qs.get("class").toString().split("/");
+            String[] orderSplitted = qs.get("order").toString().split("/");
             String order = orderSplitted[orderSplitted.length - 1];
             String[] linkSplitted = qs.get("link").toString().split("/");
             String name = linkSplitted[linkSplitted.length - 1];
@@ -141,11 +171,11 @@ public class SparqlUtil {
                 comment = comment.substring(0, comment.length() - 3);
                 String[] classSplitted = qs.get("class").toString().split("/");
                 String classs = classSplitted[classSplitted.length - 1];
-                String[] divisionplitted = qs.get("class").toString().split("/");
+                String[] divisionplitted = qs.get("division").toString().split("/");
                 String division = divisionplitted[divisionplitted.length - 1];
-                String[] familySplitted = qs.get("class").toString().split("/");
+                String[] familySplitted = qs.get("family").toString().split("/");
                 String family = familySplitted[familySplitted.length - 1];
-                String[] orderSplitted = qs.get("class").toString().split("/");
+                String[] orderSplitted = qs.get("order").toString().split("/");
                 String order = orderSplitted[orderSplitted.length - 1];
                 String[] linkSplitted = qs.get("link").toString().split("/");
                 String name = linkSplitted[linkSplitted.length - 1];
