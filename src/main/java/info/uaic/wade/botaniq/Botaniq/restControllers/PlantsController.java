@@ -51,6 +51,16 @@ public class PlantsController {
         return sparqlUtil.findOneFromDbpedia(plant);
     }
 
+    @GetMapping("/sparql")
+    public String sparqlGetEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){
+         return sparqlUtil.getRequestToStardog(query, responseType);
+    }
+
+    @PostMapping("/sparql")
+    public String sparqlPostEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){
+        return sparqlUtil.postRequestToStardog(query, responseType);
+    }
+
     @ApiOperation( value = "getPlantsList" , nickname = "getPlantsList")
     @RequestMapping( method = RequestMethod.GET , path = "/plants" , produces = "application/json")
     @ApiImplicitParams({

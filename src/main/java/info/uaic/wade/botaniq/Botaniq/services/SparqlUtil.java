@@ -184,15 +184,18 @@ public class SparqlUtil {
 
 
 
-    public String getRequestToStardog(String query){
+    public String getRequestToStardog(String query, String responseType){
         String response = null;
+        if (responseType == null){
+            responseType = "application/sparql-results+json";
+        }
         try {
             String authentification = "admin:admin";
             String encodedAuth = Base64.getEncoder().encodeToString(authentification.getBytes());
-            URL url = new URL(stardogURL + "?query=" + query.trim());
+            URL url = new URL(stardogURL + "?query=" + query.replaceAll("\\s+",""));
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
-            conn.setRequestProperty("Accept", "application/sparql-results+json");
+            conn.setRequestProperty("Accept", responseType);
             conn.setRequestProperty("Authorization", "Basic " + encodedAuth);
 
             if (conn.getResponseCode() != 200) {
@@ -223,8 +226,11 @@ public class SparqlUtil {
         return response;
     }
 
-    public String postRequestToStardog(String query){
+    public String postRequestToStardog(String query, String responseType){
         String response = null;
+        if (responseType == null){
+            responseType = "application/sparql-results+json";
+        }
         try {
             String urlReq = stardogURL;
             String authentification = "admin:admin";
@@ -234,7 +240,7 @@ public class SparqlUtil {
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("Accept", "application/sparql-results+json");
+            conn.setRequestProperty("Accept", responseType);
             conn.setRequestProperty("Authorization", "Basic " + encodedAuth);
 
             OutputStream os = conn.getOutputStream();
