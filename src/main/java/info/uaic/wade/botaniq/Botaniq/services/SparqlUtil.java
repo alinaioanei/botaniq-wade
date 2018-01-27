@@ -215,7 +215,7 @@ public class SparqlUtil {
 
 
     public String getRequestToStardog(String query, String responseType){
-        String response = null;
+        String response = "";
         if (responseType == null){
             responseType = "application/sparql-results+json";
         }
@@ -257,7 +257,7 @@ public class SparqlUtil {
     }
 
     public String postRequestToStardog(String query, String responseType){
-        String response = null;
+        String response = "";
         if (responseType == null){
             responseType = "application/sparql-results+json";
         }
