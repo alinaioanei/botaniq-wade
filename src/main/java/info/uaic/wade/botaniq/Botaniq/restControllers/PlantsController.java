@@ -1,6 +1,7 @@
 package info.uaic.wade.botaniq.Botaniq.restControllers;
 
 import info.uaic.wade.botaniq.Botaniq.model.Plants;
+import info.uaic.wade.botaniq.Botaniq.model.Query;
 import info.uaic.wade.botaniq.Botaniq.model.User;
 import info.uaic.wade.botaniq.Botaniq.services.DbpediaWrapper;
 import info.uaic.wade.botaniq.Botaniq.services.SparqlUtil;
@@ -22,6 +23,7 @@ import java.util.List;
  * Created by Aioanei Alin Ionut on 28.11.2017.
  */
 @RestController
+@CrossOrigin
 @Api(value = "plantsController", description = "CRUD operations over plants entity from botaniq application")
 public class PlantsController {
 
@@ -51,10 +53,17 @@ public class PlantsController {
         return sparqlUtil.findOneFromDbpedia(plant);
     }
 
+
     @GetMapping("/sparql")
     public String sparqlGetEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){
          return sparqlUtil.getRequestToStardog(query, responseType);
     }
+
+    @PostMapping("/caca")
+    public String caca(@RequestBody Query query){
+        return sparqlUtil.getRequestToStardog(query.getQuery(), query.getResponseType());
+    }
+
 
     @PostMapping("/sparql")
     public String sparqlPostEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){

@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Created by Aioanei Alin Ionut on 26.01.2018.
  */
-@Component
+
 public class SimpleCORS implements javax.servlet.Filter{
 
 
