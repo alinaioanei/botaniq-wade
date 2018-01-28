@@ -49,7 +49,7 @@ public class SparqlUtil {
             "                         ?plant dbo:thumbnail ?image.\n" +
             "\t\t\t                   ?plant foaf:isPrimaryTopicOf ?link\n" +
             "                         filter(lang(?info)=\"en\")\n" +
-            "                         filter(lang(?comment)=\"en\") } LIMIT 2";
+            "                         filter(lang(?comment)=\"en\") } LIMIT 50";
 
     private String findOneDbpedia = "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>\n" +
             "\t\t\t PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
