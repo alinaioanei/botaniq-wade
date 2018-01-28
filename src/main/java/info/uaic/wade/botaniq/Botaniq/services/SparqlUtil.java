@@ -3,6 +3,7 @@ package info.uaic.wade.botaniq.Botaniq.services;
 import com.complexible.stardog.ext.spring.RowMapper;
 import com.complexible.stardog.ext.spring.SnarlTemplate;
 import info.uaic.wade.botaniq.Botaniq.model.CommentForm;
+import info.uaic.wade.botaniq.Botaniq.model.StardogQuery;
 import org.apache.jena.query.*;
 import org.openrdf.query.BindingSet;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,6 +84,9 @@ public class SparqlUtil {
             "            \"\\t\\t\\t PREFIX foaf: <http://xmlns.com/foaf/0.1/>\\n\" +";
 
     private String stardogURL = "http://localhost:5820/botaniq/query";
+    private String botaniqComment = "botaniq:comment";
+    private String botaniqHasRelationWith = "botaniq:hasRelationWith";
+    private String botaniqPicture = "botaniq:picture";
 
 
     public void addComment(CommentForm commentForm) {
@@ -97,7 +101,7 @@ public class SparqlUtil {
         link = link.substring(1, link.length());
         link = link.substring(0, link.length() - 1);
         String relationWith = commentForm.getComment();
-        relationWith = "http://http://dbpedia.org/resource/" + relationWith;
+        relationWith = "dbr:" + relationWith;
         snarlTemplate.add(link, "botaniq:hasRelationWith", relationWith);
     }
 
@@ -105,7 +109,7 @@ public class SparqlUtil {
         String link = commentForm.getPlant();
         link = link.substring(1, link.length());
         link = link.substring(0, link.length() - 1);
-        snarlTemplate.add(link, "dbo:thumbnail", commentForm.getComment());
+        snarlTemplate.add(link, "botaniq:picture", commentForm.getComment());
     }
 
     public void loadDataFromDbpedia(){
@@ -125,16 +129,16 @@ public class SparqlUtil {
                 map.put(id, dw);
             }
         }
-        for (Map.Entry<Integer, DbpediaWrapper> entry: map.entrySet()){
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:abstract", entry.getValue().getInfo());
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:wikiPageID", entry.getValue().getLink());
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:family", entry.getValue().getFamily());
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:order", entry.getValue().getOrder());
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:class", entry.getValue().getClasss());
-            snarlTemplate.add(entry.getValue().getPlant(), "dbo:thumbnail", entry.getValue().getImage());
-            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:comment", entry.getValue().getComment());
-            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:label", entry.getValue().getName());
-        }
+//        for (Map.Entry<Integer, DbpediaWrapper> entry: map.entrySet()){
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:abstract", entry.getValue().getInfo());
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:wikiPageID", entry.getValue().getLink());
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:family", entry.getValue().getFamily());
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:order", entry.getValue().getOrder());
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:class", entry.getValue().getClasss());
+//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:thumbnail", entry.getValue().getImage());
+//            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:comment", entry.getValue().getComment());
+//            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:label", entry.getValue().getName());
+//        }
         qe.close();
 
     }
@@ -177,6 +181,29 @@ public class SparqlUtil {
                     qs.get("link").toString(), qs.get("image").toString(), name, plantLink);
         }
         qe.close();
+        dw.setUserComments(new ArrayList<>());
+        dw.setUserImages(new ArrayList<>());
+        dw.setUserRelation(new ArrayList<>());
+        plant = "dbr:" + plant;
+        String stardogQuery = " select * where { " + plant + " ?y ?c }";
+
+        List<StardogQuery> list = snarlTemplate.query(stardogQuery, new RowMapper<StardogQuery>() {
+
+            @Override
+            public StardogQuery mapRow(BindingSet bindingSet) {
+
+                return new StardogQuery(bindingSet.getValue("y").stringValue(), bindingSet.getValue("c").stringValue());
+            }
+        });
+        for (StardogQuery sQ: list){
+            if(sQ.getKey().equals(botaniqComment)){
+                dw.getUserComments().add(sQ.getValue());
+            } else if (sQ.getKey().equals(botaniqPicture)){
+                dw.getUserImages().add(sQ.getValue());
+            } else if(sQ.getKey().equals(botaniqHasRelationWith)){
+                dw.getUserRelation().add(sQ.getValue());
+            }
+        }
         return dw;
     }
 
