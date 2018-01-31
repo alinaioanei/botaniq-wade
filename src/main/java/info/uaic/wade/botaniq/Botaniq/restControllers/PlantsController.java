@@ -1,9 +1,6 @@
 package info.uaic.wade.botaniq.Botaniq.restControllers;
 
-import info.uaic.wade.botaniq.Botaniq.model.CommentForm;
-import info.uaic.wade.botaniq.Botaniq.model.Plants;
-import info.uaic.wade.botaniq.Botaniq.model.Query;
-import info.uaic.wade.botaniq.Botaniq.model.User;
+import info.uaic.wade.botaniq.Botaniq.model.*;
 import info.uaic.wade.botaniq.Botaniq.services.DbpediaWrapper;
 import info.uaic.wade.botaniq.Botaniq.services.SparqlUtil;
 import io.swagger.annotations.*;
@@ -55,7 +52,7 @@ public class PlantsController {
     }
 
     @GetMapping("/fetchSoilPreparationSteps")
-    public List<CommentForm> fetchSoilPreparationSteps() { return sparqlUtil.fetchSoilPreparationSteps(); }
+    public Activity fetchSoilPreparationSteps() { return sparqlUtil.fetchSoilPreparationSteps(); }
 
     @GetMapping("/fetchSectionNames")
     public List<String> fetchSectionLinks() { return sparqlUtil.fetchSectionNames(); }

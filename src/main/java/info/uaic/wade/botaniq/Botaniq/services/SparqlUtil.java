@@ -2,6 +2,7 @@ package info.uaic.wade.botaniq.Botaniq.services;
 
 import com.complexible.stardog.ext.spring.RowMapper;
 import com.complexible.stardog.ext.spring.SnarlTemplate;
+import info.uaic.wade.botaniq.Botaniq.model.Activity;
 import info.uaic.wade.botaniq.Botaniq.model.CommentForm;
 import info.uaic.wade.botaniq.Botaniq.model.StardogQuery;
 import org.apache.jena.query.*;
@@ -284,7 +285,7 @@ public class SparqlUtil {
         return list;
     }
 
-    public List<CommentForm> fetchSoilPreparationSteps(){
+    public Activity fetchSoilPreparationSteps(){
         List<CommentForm> list;
         String query = "select  ?label ?comment where {?step <http://www.wadebotaniq.com/botaniq#partOfActivity> <http://www.wadebotaniq.com/botaniq#FloweringSoilPreparetion>.\n" +
                 "                \n" +
@@ -297,7 +298,37 @@ public class SparqlUtil {
                 return new CommentForm(bindingSet.getValue("label").stringValue(), bindingSet.getValue("comment").stringValue());
             }
         });
-        return list;
+        Activity a = new Activity();
+        a.setCommentForms(list);
+
+        List<String> comments = snarlTemplate.query("select ?comment where { <http://www.wadebotaniq.com/botaniq#FloweringSoilPreparetion> <http://www.wadebotaniq.com/botaniq#comment> ?comment}", new RowMapper<String>() {
+
+            @Override
+            public String mapRow(BindingSet bindingSet) {
+
+                return bindingSet.getValue("comment").stringValue();
+            }
+        });
+        List<String> relation = snarlTemplate.query("select ?relation where { <http://www.wadebotaniq.com/botaniq#FloweringSoilPreparetion> <http://www.wadebotaniq.com/botaniq#picture> ?picture}", new RowMapper<String>() {
+
+            @Override
+            public String mapRow(BindingSet bindingSet) {
+
+                return bindingSet.getValue("picture").stringValue();
+            }
+        });
+        List<String> images = snarlTemplate.query("select ?picture where { <http://www.wadebotaniq.com/botaniq#FloweringSoilPreparetion> <http://www.wadebotaniq.com/botaniq#hasRelationWith> ?relation}", new RowMapper<String>() {
+
+            @Override
+            public String mapRow(BindingSet bindingSet) {
+
+                return bindingSet.getValue("relation").stringValue();
+            }
+        });
+        a.setUserRelation(relation);
+        a.setUserComments(comments);
+        a.setUserImages(images);
+        return a;
     }
 
     public List<String> fetchPlantsName(String plant) {
