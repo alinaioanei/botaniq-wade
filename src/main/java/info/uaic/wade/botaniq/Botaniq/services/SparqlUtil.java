@@ -20,6 +20,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.*;
 
@@ -84,16 +85,16 @@ public class SparqlUtil {
             "            \"\\t\\t\\t PREFIX foaf: <http://xmlns.com/foaf/0.1/>\\n\" +";
 
     private String stardogURL = "http://localhost:5820/botaniq/query";
-    private String botaniqComment = "botaniq:comment";
-    private String botaniqHasRelationWith = "botaniq:hasRelationWith";
-    private String botaniqPicture = "botaniq:picture";
+    private String botaniqComment = "http://www.wadebotaniq.com/botaniq#comment";
+    private String botaniqHasRelationWith = "http://www.wadebotaniq.com/botaniq#hasRelationWith";
+    private String botaniqPicture = "http://www.wadebotaniq.com/botaniq#picture";
 
 
     public void addComment(CommentForm commentForm) {
         String link = commentForm.getPlant();
         link = link.substring(1, link.length());
         link = link.substring(0, link.length() - 1);
-        snarlTemplate.add(link, "botaniq:comment", commentForm.getComment());
+        snarlTemplate.add(link, "http://www.wadebotaniq.com/botaniq#comment", commentForm.getComment());
     }
 
     public void addRelation(CommentForm commentForm) {
@@ -101,18 +102,19 @@ public class SparqlUtil {
         link = link.substring(1, link.length());
         link = link.substring(0, link.length() - 1);
         String relationWith = commentForm.getComment();
-        relationWith = "dbr:" + relationWith;
-        snarlTemplate.add(link, "botaniq:hasRelationWith", relationWith);
+        relationWith = "http://dbpedia.org/resource/" + relationWith;
+        snarlTemplate.add(URI.create(link), URI.create("http://www.wadebotaniq.com/botaniq#hasRelationWith"), URI.create(relationWith));
     }
 
     public void addImage(CommentForm commentForm) {
         String link = commentForm.getPlant();
         link = link.substring(1, link.length());
         link = link.substring(0, link.length() - 1);
-        snarlTemplate.add(link, "botaniq:picture", commentForm.getComment());
+        snarlTemplate.add(link, "http://www.wadebotaniq.com/botaniq#picture", commentForm.getComment());
     }
 
     public void loadDataFromDbpedia(){
+        List<String> sections = fetchSectionNames();
         ParameterizedSparqlString ps = new ParameterizedSparqlString(findAlldbpediaQuery);
         QueryExecution qe = QueryExecutionFactory.sparqlService("http://dbpedia.org/sparql", ps.asQuery());
         Map<Integer, DbpediaWrapper> map = new HashMap<>();
@@ -129,16 +131,18 @@ public class SparqlUtil {
                 map.put(id, dw);
             }
         }
-//        for (Map.Entry<Integer, DbpediaWrapper> entry: map.entrySet()){
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:abstract", entry.getValue().getInfo());
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:wikiPageID", entry.getValue().getLink());
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:family", entry.getValue().getFamily());
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:order", entry.getValue().getOrder());
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:class", entry.getValue().getClasss());
-//            snarlTemplate.add(entry.getValue().getPlant(), "dbo:thumbnail", entry.getValue().getImage());
-//            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:comment", entry.getValue().getComment());
-//            snarlTemplate.add(entry.getValue().getPlant(), "rdfs:label", entry.getValue().getName());
-//        }
+       for (Map.Entry<Integer, DbpediaWrapper> entry: map.entrySet()){
+            int random = (int)Math.random() * sections.size();
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/abstract", entry.getValue().getInfo());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/wikiPageID", entry.getValue().getLink());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/family", entry.getValue().getFamily());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/order", entry.getValue().getOrder());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/class", entry.getValue().getClasss());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://dbpedia.org/ontology/thumbnail", entry.getValue().getImage());
+            snarlTemplate.add(entry.getValue().getPlant(), "https://www.w3.org/2000/01/rdf-schema#comment", entry.getValue().getComment());
+            snarlTemplate.add(entry.getValue().getPlant(), "https://www.w3.org/2000/01/rdf-schema#label", entry.getValue().getName());
+            snarlTemplate.add(entry.getValue().getPlant(), "http://www.wadebotaniq.com/botaniq#partOfSection", sections.get(random & sections.size()));
+       }
         qe.close();
 
     }
@@ -263,6 +267,37 @@ public class SparqlUtil {
                 return new Object();
             }
         });
+    }
+
+    public List<String> fetchSectionNames(){
+        List<String> list = new LinkedList<>();
+        String query = "select  ?label where {?garden <http://www.wadebotaniq.com/botaniq#hasSections> ?section.\n" +
+                "                      ?section rdfs:label ?label\n" +
+                "                       }";
+        list = snarlTemplate.query(query, new RowMapper<String>() {
+
+            @Override
+            public String mapRow(BindingSet bindingSet) {
+                return bindingSet.getValue("label").stringValue();
+            }
+        });
+        return list;
+    }
+
+    public List<CommentForm> fetchSoilPreparationSteps(){
+        List<CommentForm> list;
+        String query = "select  ?label ?comment where {?step <http://www.wadebotaniq.com/botaniq#partOfActivity> <http://www.wadebotaniq.com/botaniq#FloweringSoilPreparetion>.\n" +
+                "                \n" +
+                "                 ?step rdfs:label ?label.\n" +
+                "                 ?step rdfs:comment ?comment\n" +
+                "                }";
+        list = snarlTemplate.query(query, new RowMapper<CommentForm>() {
+            @Override
+            public CommentForm mapRow(BindingSet bindingSet) {
+                return new CommentForm(bindingSet.getValue("label").stringValue(), bindingSet.getValue("comment").stringValue());
+            }
+        });
+        return list;
     }
 
     public List<String> fetchPlantsName(String plant) {

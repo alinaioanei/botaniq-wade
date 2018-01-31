@@ -12,4 +12,5 @@ public class StardogQuery {
 
     private String key;
     private String value;
+
 }

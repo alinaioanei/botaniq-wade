@@ -54,6 +54,11 @@ public class PlantsController {
         return sparqlUtil.findOneFromDbpedia(plant);
     }
 
+    @GetMapping("/fetchSoilPreparationSteps")
+    public List<CommentForm> fetchSoilPreparationSteps() { return sparqlUtil.fetchSoilPreparationSteps(); }
+
+    @GetMapping("/fetchSectionNames")
+    public List<String> fetchSectionLinks() { return sparqlUtil.fetchSectionNames(); }
 
     @GetMapping("/sparql")
     public String sparqlGetEndpoint(@RequestParam("query") String query, @RequestParam("responseType") String responseType){
@@ -62,7 +67,7 @@ public class PlantsController {
 
     @PostMapping("/caca")
     public String caca(@RequestBody Query query){
-        return sparqlUtil.getRequestToStardog(query.getQuery(), query.getResponseType());
+        return sparqlUtil.postRequestToStardog(query.getQuery(), query.getResponseType());
     }
 
 
